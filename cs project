@@ -1,0 +1,226 @@
+
+
+#ROHIT YADAV   , PRIYANSHi XII-A
+#TOPIC- COMPUTER STORE
+
+
+import mysql.connector as my
+pswd='1234'
+dtb='item'
+
+'''Updating the password and database of the user'''
+try:
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+except:
+    print('-'*100)
+    print("Please enter your password and the database")
+    pswd=input("Enter your MySQL Password: ")
+    print("Note - The database entered by you will be created if not exists")
+    dtb=input("Enter Database: ")
+    print('-'*100)
+    con=my.connect(host='localhost',user='root',password=pswd) 
+    cur=con.cursor()
+    cur.execute("create database if not exists {}".format(dtb))
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+
+
+
+
+#Creating table
+def create_table():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    try:
+        cur=con.cursor()
+        qry='''create table if not exists ITEMS(idno varchar(10) primary key, name varchar(25), price int(25), units varchar(25), unitsold varchar(25), powerconsumption varchar(15), clock varchar(20))'''
+        cur.execute(qry)
+        print("computer table created successfully..")
+        cur.close()
+        con.close()
+    except Exception as e:
+        print('Error message - ',e)
+    run()
+#Displaying the table
+def disp_table():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    try:
+        cur=con.cursor()
+        print("The table structure is :")
+        print()
+        cur.execute("desc items")
+        print('-'*30)
+        print("FIELD NAME \t DATA TYPE")
+        print('-'*30)
+        for c in cur:
+            #printing only field name and data type
+            print(c[0].upper(), '\t\t', c[1])
+            print('-'*30)
+            
+        cur.close()
+        con.close()
+    except Exception as e:
+        print('Error message - ',e)
+    run()    
+#Inserting values
+def insert():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    try:
+        cur=con.cursor()
+        while True :
+            idno=input("Enter ITEMS ID")
+            if len(idno)!=3:
+                    while len(idno)!=3:
+                        print("The ITEMS ID is of 3 digits")
+                        idno=input("Enter ITEMS ID")
+            name=input("Enter ITEMS NAME")
+            price=int(input("Enter ITEMS PRICE(In rupees)"))
+            if price<=200 or price >=100000:
+                while price<=200 or price >=100000:
+                    print("Price is too low or too high")
+                    price=int(input("Enter ITEMS PRICE(In rupees)"))
+            unit=input("Enter the TOTAL NO. OF UNITS")
+            sold=input("Enter the NO. OF UNITS SOLD")
+            if sold>unit:
+                
+                    print("Sorry, But the Units sold cannot be greater than total units")
+                    sold=input("Enter the NO. OF UNITS SOLD")
+            POWERCON=input("Enter powerconsumption")
+            clock=input("Enter clock speed")
+            qry="insert into items values({},'{}',{},'{}',{},'{}',{})".format(idno,name,price,unit,sold,POWERCON,clock)
+            cur.execute(qry)
+            con.commit()
+            print("One record added to database")
+            print()
+            ans=input("Do you want to add another record(y/n):")
+            if ans =='n':
+                break
+        cur.close()
+        con.close()
+    except Exception as e:
+        print('Error message - ',e)
+    run()     
+#Searching records
+def search():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    try:
+        cur=con.cursor()
+        while True:
+            idno=input("Enter the ITEMS ID to search for:")
+            qry="select * from ITEMS where idno={}".format(idno)
+            #print(qry)
+            cur.execute(qry)
+            cols=cur.column_names
+            rec=cur.fetchone()
+            if rec==None:
+                print("Sorry! No ITEMS details for",idno,"found")
+            else:
+                print("-"*20)
+                for i in range(len(rec)):
+                    print(cols[i].upper(),'\t:',rec[i])
+                print("-"*20)
+            print()
+            ans=input("Do you want to continue(y/n):")
+            if ans =='n':
+                break
+        cur.close()
+        con.close()
+    except Exception as e:
+        print(e)
+    run()
+
+#Updating records
+def update():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    try:
+        cur=con.cursor()
+        while True:
+            idno=input("Enter the ITEMS ID to search for:")
+            qry="select * from ITEMS where idno={}".format(idno)
+            cur.execute(qry)
+            rows=cur.fetchall()
+            if rows==[]:
+                print("Sorry! Record for",idno, "not found")
+            else:
+                name=input("Enter ITEMS NAME")
+                price=int(input("Enter ITEMS PRICE (In rupees)"))
+                if price<=200 or price >=100000:
+                    while price<=200 or price >=100000:
+                        print("Price is too low or too high")
+                        price=int(input("Enter ITEMS PRICE (In rupees)"))
+                unit=input("Enter the TOTAL NO. OF UNITS")
+                sold=input("Enter the NO. OF UNITS SOLD")
+                if sold>unit:
+                    
+                        print("Sorry, But the Units sold cannot be greater than total units")
+                        sold=input("Enter the NO. OF UNITS SOLD")
+                POWERCON=input("Enter powerconsumption")
+                cloc=input("Enter clock speed")
+                qry="update ITEMS set name= '{}', price={}, units='{}', unitsold={}, powerconsumption='{}', clock='{}' where idno={}".format(name,price,unit,sold,POWERCON,cloc,idno)
+                cur.execute(qry)
+                con.commit()
+                print("Record for idno ",idno, "has been updated")
+            print()
+            ans=input("Do you want to update another record(y/n):")
+            if ans =='n':
+                break
+        cur.close()
+        con.close()
+    except Exception as e:
+        print(e)
+    run()
+
+
+#Delete a record
+def dele():
+    con=my.connect(host='localhost',user='root',password=pswd ,database=dtb)
+    
+    try:
+        cur=con.cursor()
+        while True:
+            idno=input("Enter the idno to delete:")
+            qry="select * from items where idno={}".format(idno)
+            cur.execute(qry)
+            rows=cur.fetchall()
+            if rows==[]:
+                print("Sorry!Record for idno",idno,"not found")
+            else:
+                ans=input("Are you sure you want to delete this record(y/n)?")
+                if ans=='y':
+                    qry="delete from items where idno={}".format(idno)
+                    cur.execute(qry)
+                    con.commit()
+                    print("Record for idno", idno, "has been deleted")
+            print()
+            ch=input("Do you want to delete another record(y/n):")
+            if ch=='n':
+                break
+        cur.close()
+        con.close() 
+    except Exception as e:
+        print(e)      
+    run()  
+                    
+                            
+                
+def run():
+    print("(1)Create table")
+    print("(2)Display table")
+    print("(3)Insert values")
+    print("(4)Search for a items")
+    print("(5)Update a record")
+    print("(6)Delete a record")
+    User=int(input("Enter the number again  st the action to be performed:- "))
+    if User==1:
+        create_table()
+    elif User==2:
+        disp_table()
+    elif User==3:
+        insert()
+    elif User==4:
+        search()
+    elif User==5:
+        update()
+    elif User==6:
+        dele()
+        
+        
+run()
