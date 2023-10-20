@@ -1,9 +1,5 @@
 
 
-#ROHIT YADAV   , PRIYANSHi XII-A
-#TOPIC- COMPUTER STORE
-
-
 import mysql.connector as my
 pswd='1234'
 dtb='item'
